@@ -26,6 +26,14 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
+const (
+	killed                = "Killed"
+	killedOrKilling       = "Killed|Killing"
+	killingOrKilled       = "Killing|Killed .*"
+	filterReasonByRegexp  = "filter reason by regexp"
+	filterMessageByRegexp = "filter message by regexp"
+)
+
 func TestFilterConfig_Filter(t *testing.T) {
 	type fields struct {
 		Reason    string
@@ -49,38 +57,38 @@ func TestFilterConfig_Filter(t *testing.T) {
 	}{
 		{
 			name:   "filter reason exactly",
-			fields: fields{Reason: "Killed"},
-			args:   args{event: &v1.Event{Reason: "Killed"}},
+			fields: fields{Reason: killed},
+			args:   args{event: &v1.Event{Reason: killed}},
 			want:   false,
 		},
 		{
-			name:   "filter reason by regexp",
-			fields: fields{Reason: "Killed|Killing"},
+			name:   filterReasonByRegexp,
+			fields: fields{Reason: killedOrKilling},
 			args:   args{event: &v1.Event{Reason: "Killing"}},
 			want:   false,
 		},
 		{
-			name:   "filter reason by regexp",
-			fields: fields{Reason: "Killed|Killing"},
+			name:   filterReasonByRegexp,
+			fields: fields{Reason: killedOrKilling},
 			args:   args{event: &v1.Event{Reason: "Started"}},
 			want:   true,
 		},
 
 		{
-			name:   "filter message by regexp",
-			fields: fields{Message: "Killing|Killed .*"},
+			name:   filterMessageByRegexp,
+			fields: fields{Message: killingOrKilled},
 			args:   args{event: &v1.Event{Message: "Killing reviews"}},
 			want:   false,
 		},
 		{
-			name:   "filter message by regexp",
-			fields: fields{Message: "Killing|Killed .*"},
+			name:   filterMessageByRegexp,
+			fields: fields{Message: killingOrKilled},
 			args:   args{event: &v1.Event{Message: "Killed reviews"}},
 			want:   false,
 		},
 		{
-			name:   "filter message by regexp",
-			fields: fields{Message: "Killing|Killed .*"},
+			name:   filterMessageByRegexp,
+			fields: fields{Message: killingOrKilled},
 			args:   args{event: &v1.Event{Message: "Started reviews"}},
 			want:   true,
 		},

@@ -14,56 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-run:
-  skip-files:
-    - ".*\\.pb\\.go"
-    - ".*\\.gen\\.go"
-
-linters-settings:
-  govet:
-    check-shadowing: true
-  golint:
-    min-confidence: 0
-  gocyclo:
-    min-complexity: 20
-  maligned:
-    suggest-new: true
-  dupl:
-    threshold: 200
-  goconst:
-    min-len: 2
-    min-occurrences: 2
-  depguard:
-    list-type: blacklist
-    include-go-root: true
-    packages-with-error-messages:
-      fmt: "logging is allowed only by logutils.Log"
-  misspell:
-    locale: US
-  lll:
-    line-length: 150
-  goimports:
-    local-prefixes: github.com/apache/skywalking-kubernetes-event-exporter
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
-      - performance
-      - style
-    disabled-checks:
-      - ifElseChain
-  funlen:
-    lines: 100
-    statements: 50
-  whitespace:
-    multi-if: false
-    multi-func: false
-
+version: "2"
 linters:
   enable:
     - bodyclose
-    - deadcode
     - depguard
     - dogsled
     - dupl
@@ -72,32 +26,84 @@ linters:
     - goconst
     - gocritic
     - gocyclo
-    - gofmt
-    - goimports
-    - golint
     - gosec
-    - gosimple
     - govet
     - ineffassign
-    - interfacer
     - lll
     - misspell
     - nakedret
     - staticcheck
-    - structcheck
-    - stylecheck
-    - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
-
-service:
-  golangci-lint-version: 1.20.x
-
-issues:
-  exclude-rules:
-    - linters:
-        - lll
-      source: "^// "
+  settings:
+    depguard:
+      rules:
+        logging:
+          include-go-root: true
+          deny:
+            - pkg: log
+              desc: logging is allowed only by logutils.Log
+    dupl:
+      threshold: 200
+    funlen:
+      lines: 100
+      statements: 50
+    goconst:
+      min-len: 2
+      min-occurrences: 2
+    gocritic:
+      disabled-checks:
+        - ifElseChain
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+    gocyclo:
+      min-complexity: 20
+    govet:
+      enable:
+        - shadow
+    lll:
+      line-length: 150
+    misspell:
+      locale: US
+    whitespace:
+      multi-if: false
+      multi-func: false
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - lll
+        source: '^// '
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - '.*\.pb\.go'
+      - '.*\.gen\.go'
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/apache/skywalking-kubernetes-event-exporter
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - '.*\.pb\.go'
+      - '.*\.gen\.go'

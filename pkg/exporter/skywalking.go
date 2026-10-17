@@ -31,6 +31,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	k8score "k8s.io/api/core/v1"
 	sw "skywalking.apache.org/repo/goapi/collect/event/v3"
 
@@ -105,10 +106,10 @@ func (exporter *SkyWalking) Init(ctx context.Context) error {
 			dialOption = grpc.WithTransportCredentials(cred)
 		}
 	} else {
-		dialOption = grpc.WithInsecure()
+		dialOption = grpc.WithTransportCredentials(insecure.NewCredentials())
 	}
 
-	conn, err := grpc.Dial(config.Address, dialOption)
+	conn, err := grpc.NewClient(config.Address, dialOption)
 	if err != nil {
 		return err
 	}
